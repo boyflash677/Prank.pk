@@ -3,29 +3,143 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Spin & Win Prank</title>
+<title>Spin & Win</title>
 <style>
-  body { font-family: Arial, sans-serif; text-align: center; padding: 30px; background: #f0f0f0; }
-  #amount { font-size: 48px; margin: 20px 0; }
-  button { margin: 10px; padding: 15px 25px; font-size: 18px; cursor: pointer; }
-  input { padding: 10px; font-size: 16px; width: 250px; margin-top: 10px; }
-  #aboutBtn { display: block; margin: 30px auto 0; padding: 15px 30px; font-size: 20px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 5px; }
-  #aboutBtn:hover { background-color: #0056b3; }
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    height: 100vh;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* floating emojis */
+  .emoji {
+    position: absolute;
+    font-size: 2.5rem;
+    animation: float 6s ease-in-out infinite;
+    opacity: 0.8;
+  }
+  .e1 { top: 10%; left: 15%; animation-delay: 0s; }
+  .e2 { top: 30%; right: 10%; animation-delay: 2s; }
+  .e3 { bottom: 20%; left: 25%; animation-delay: 4s; }
+  .e4 { bottom: 15%; right: 20%; animation-delay: 1s; }
+  .e5 { top: 50%; left: 50%; animation-delay: 3s; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); opacity: 0.8;}
+    50% { transform: translateY(-20px); opacity: 1; }
+  }
+
+  h1 {
+    font-size: 3rem;
+    text-shadow: 0 0 10px #ffffff88;
+    margin-bottom: 20px;
+  }
+
+  #amount {
+    font-size: 5rem;
+    margin: 20px 0;
+    letter-spacing: 5px;
+    text-shadow: 0 0 20px #fff, 0 0 30px #ffd700, 0 0 40px #ffb800;
+  }
+
+  button {
+    background: #ffd700;
+    border: none;
+    padding: 15px 35px;
+    margin: 10px;
+    font-weight: 700;
+    font-size: 1.3rem;
+    border-radius: 30px;
+    color: #4a2e00;
+    cursor: pointer;
+    box-shadow: 0 8px 15px rgba(255, 215, 0, 0.3);
+    transition: all 0.3s ease;
+  }
+  button:hover {
+    background: #ffeb3b;
+    box-shadow: 0 12px 20px rgba(255, 235, 59, 0.6);
+    transform: scale(1.05);
+  }
+  button:disabled {
+    background: #999;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+
+  #upiInput {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 25px;
+    border: none;
+    font-size: 1.1rem;
+    width: 280px;
+    text-align: center;
+    display: none;
+  }
+
+  #withdrawBtn:disabled {
+    opacity: 0.7;
+  }
+
+  #aboutBtn {
+    margin-top: 40px;
+    background: linear-gradient(45deg, #ff416c, #ff4b2b);
+    color: white;
+    font-size: 1.5rem;
+    padding: 15px 40px;
+    border-radius: 50px;
+    box-shadow: 0 8px 15px rgba(255, 75, 43, 0.6);
+    border: none;
+    cursor: pointer;
+    transition: all 0.4s ease;
+  }
+  #aboutBtn:hover {
+    background: linear-gradient(45deg, #ff4b2b, #ff416c);
+    box-shadow: 0 12px 25px rgba(255, 65, 108, 0.9);
+    transform: scale(1.1);
+  }
+
+  /* small instructions text */
+  #instructions {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+
 </style>
 </head>
 <body>
 
-<h1>Spin & Win Prank</h1>
+<!-- Emojis floating -->
+<div class="emoji e1">💰</div>
+<div class="emoji e2">🎉</div>
+<div class="emoji e3">🔥</div>
+<div class="emoji e4">🎊</div>
+<div class="emoji e5">💸</div>
+
+<h1>Spin & Win</h1>
 
 <div id="amount">₹0</div>
 
 <button id="spinBtn">Spin</button><br/>
 
-<input id="upiInput" type="text" placeholder="Enter your UPI ID" /><br/>
+<input id="upiInput" type="text" placeholder="Enter your UPI ID to withdraw" />
 
-<button id="withdrawBtn">Withdrawal</button>
+<button id="withdrawBtn" disabled>Withdrawal</button>
 
 <button id="aboutBtn">About Me</button>
+
+<div id="instructions">* Spin only works on 2nd click *</div>
 
 <audio id="prankSound" loop>
   <source src="https://actions.google.com/sounds/v1/animals/cat_purr_close.ogg" type="audio/ogg">
@@ -33,7 +147,7 @@
 </audio>
 
 <script>
-  const amounts = [30, 50, 100, 200, 500, 1000, 2000, 3000, 4000, 5000];
+  const amounts = [200, 400, 800, 1000];
   const amountDiv = document.getElementById('amount');
   const spinBtn = document.getElementById('spinBtn');
   const withdrawBtn = document.getElementById('withdrawBtn');
@@ -41,11 +155,27 @@
   const upiInput = document.getElementById('upiInput');
   const aboutBtn = document.getElementById('aboutBtn');
 
+  let spinClickCount = 0;
+  let currentPrize = 0;
+
   spinBtn.onclick = () => {
+    spinClickCount++;
+    if (spinClickCount < 2) {
+      alert('Spin will work on 2nd click only! Try again.');
+      return;
+    }
+
+    // Disable spin after success
+    spinBtn.disabled = true;
+
     // Random amount
     const randomIndex = Math.floor(Math.random() * amounts.length);
-    const prize = amounts[randomIndex];
-    amountDiv.textContent = `₹${prize}`;
+    currentPrize = amounts[randomIndex];
+    amountDiv.textContent = `₹${currentPrize}`;
+
+    // Show UPI input and enable withdrawal
+    upiInput.style.display = 'inline-block';
+    withdrawBtn.disabled = false;
   };
 
   withdrawBtn.onclick = () => {
@@ -53,11 +183,13 @@
       alert('Please enter your UPI ID first!');
       return;
     }
-    alert('Processing withdrawal...');
+    alert(`Processing your withdrawal of ₹${currentPrize}...`);
+
     // Play prank sound endlessly
-    prankSound.src = 'https://actions.google.com/sounds/v1/animals/cat_purr_close.ogg'; // Replace with actual prank sound if chaho
+    prankSound.src = 'https://actions.google.com/sounds/v1/animals/cat_purr_close.ogg'; // Change if you want
     prankSound.play();
-    // Disable buttons so user can't stop easily
+
+    // Disable buttons and input so user can't stop easily
     spinBtn.disabled = true;
     withdrawBtn.disabled = true;
     upiInput.disabled = true;
